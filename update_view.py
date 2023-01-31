@@ -28,24 +28,14 @@ class UpdateViewMenus:
 
     @staticmethod
     def product_functions_menu(
-            product: str,
-            on_list_versions: Callable[[], None],
-            on_add_version: Callable[[], None],
-            on_replace_version: Callable[[], None],
-            on_delete_version: Callable[[], None]
+        product: str,
+        on_list_versions: Callable[[], None],
+        on_add_version: Callable[[], None],
+        on_replace_version: Callable[[], None],
+        on_delete_version: Callable[[], None],
     ):
-        sections = [
-            "List versions",
-            "Add version",
-            "Replace version",
-            "Delete version"
-        ]
-        actions = [
-            on_list_versions,
-            on_add_version,
-            on_replace_version,
-            on_delete_version
-        ]
+        sections = ["List versions", "Add version", "Replace version", "Delete version"]
+        actions = [on_list_versions, on_add_version, on_replace_version, on_delete_version]
         while True:
             choice = UpdateViewMenus._choose_ui(f"Current Product: {product}", sections)
             if choice is not None:
@@ -65,7 +55,7 @@ class UpdateViewMenus:
 
 
 class UpdateViewInputs:
-    _INVALID_FILE_NAME_SYMBOLS = ["/", "\\", "?", "*", ":", "<", ">", "\"", "|"]
+    _INVALID_FILE_NAME_SYMBOLS = ["/", "\\", "?", "*", ":", "<", ">", '"', "|"]
 
     @staticmethod
     def _new_file_name(title: str, validator: Callable[[str], bool]) -> Optional[str]:
@@ -133,7 +123,9 @@ class UpdateViewInputs:
 
     @staticmethod
     def validate_replace_version(version_code_new: int, version_name_new: str, version_code: int, version_name: str) -> bool:
-        return UpdateViewInputs._yes_or_no(f"Are you sure to replace {version_name} ({version_code}) with {version_name_new} ({version_code_new})", False)
+        return UpdateViewInputs._yes_or_no(
+            f"Are you sure to replace {version_name} ({version_code}) with {version_name_new} ({version_code_new})", False
+        )
 
 
 class UpdateViewOutputs:

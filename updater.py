@@ -14,7 +14,7 @@ def main():
         controller.launch_product_functions()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:

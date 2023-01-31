@@ -5,7 +5,9 @@ from update_model import VersionInfo, VersionIndex
 
 
 def list_jsons(folder_path: str) -> list[str]:
-    return sorted([i for i in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, i)) and i.endswith(".json") and not i.startswith(".")])
+    return sorted(
+        [i for i in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, i)) and i.endswith(".json") and not i.startswith(".")]
+    )
 
 
 def _load_json(path: str) -> Union[dict, list]:
@@ -120,6 +122,13 @@ class UpdateFileManager:
 
     def save_latest_version_info(self, info: VersionInfo):
         self.save_version_info(self.latest_file, info)
+
+    def save_template_version_info(self, name: str, path: str) -> str:
+        if not name.endswith(".json"):
+            name += ".json"
+        file_path = os.path.join(path, name)
+        self.save_version_info(file_path, VersionInfo.empty_instance())
+        return file_path
 
     def save_latest_download_info(self, info: VersionInfo):
         _prepare_parent_dir(self.latest_download_file)
