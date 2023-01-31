@@ -65,10 +65,15 @@ class UpdateController:
         version_indexes = [self._files.read_version_code_version_info(i).to_index() for i in version_codes[: self._recent_index_length]]
         self._files.save_recent_index_list(version_indexes)
 
-    def _reset_latest(self):
+    def _get_latest_version(self) -> Optional[VersionInfo]:
         version_codes = self._files.list_version_codes()
         if len(version_codes) > 0:
-            latest_version_info = self._files.read_version_code_version_info(version_codes[0])
+            return self._files.read_version_code_version_info(version_codes[0])
+        return None
+
+    def _reset_latest(self):
+        latest_version_info = self._get_latest_version()
+        if latest_version_info is not None:
             self._files.save_latest_version_info(latest_version_info)
             self._files.save_latest_download_info(latest_version_info)
         else:
@@ -78,9 +83,17 @@ class UpdateController:
         versions = self._files.list_version_codes(descending=False)
         UpdateViewOutputs.list_versions(versions)
 
+    def _check_add_old_version(self, version_info: VersionInfo) -> bool:
+        latest_version_info = self._get_latest_version()
+        if latest_version_info is not None and version_info.version_code < latest_version_info.version_code:
+            return UpdateViewInputs.check_add_old_version(version_info.version_code, version_info.version_name)
+        return True
+
     def _add_version(self, replaceable: bool):
         version_info = self._get_new_version_template()
         if version_info is None:
+            return
+        if not replaceable and not self._check_add_old_version(version_info):
             return
         version_exists = self._files.has_version_code(version_info.version_code)
         if not replaceable and version_exists:

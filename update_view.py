@@ -127,6 +127,10 @@ class UpdateViewInputs:
         return UpdateViewInputs._get_version_code("Please enter a version code to delete", validator)
 
     @staticmethod
+    def check_add_old_version(version_code: int, version_name: str) -> bool:
+        return UpdateViewInputs._yes_or_no(f"Are you sure to add a old version {version_name} ({version_code})", False)
+
+    @staticmethod
     def validate_delete_version(version_code: int, version_name: str) -> bool:
         return UpdateViewInputs._yes_or_no(f"Are you sure to delete {version_name} ({version_code})", False)
 
