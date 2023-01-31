@@ -23,7 +23,8 @@ def _dump_json(path: str, content: Union[dict, list]):
 def _prepare_parent_dir(path: str):
     parent_dir = os.path.dirname(path)
     if not parent_dir.isspace() or len(parent_dir) == 0:
-        os.makedirs(parent_dir)
+        if not os.path.exists(parent_dir):
+            os.makedirs(parent_dir)
 
 
 class UpdateFileManager:
