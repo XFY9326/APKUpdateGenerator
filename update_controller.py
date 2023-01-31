@@ -42,7 +42,9 @@ class UpdateController:
             if product is not None:
                 UpdateFileManager.new_product(source_root, product)
                 UpdateViewOutputs.new_product_created(product)
-            return None
+                return product
+            else:
+                return None
         return product
 
     def _get_new_version_template(self) -> Optional[VersionInfo]:
