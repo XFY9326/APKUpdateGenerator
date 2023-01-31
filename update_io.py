@@ -36,7 +36,7 @@ class UpdateFileManager:
     def __init__(self, source_root: str, product: str):
         self._source_root: str = source_root
         self._product: str = product
-        self._product_root = os.path.join(source_root, product)
+        self._product_root: str = os.path.join(source_root, product)
         if not os.path.exists(self._product_root):
             raise FileNotFoundError(self._product_root)
 
@@ -108,7 +108,7 @@ class UpdateFileManager:
         versions.sort(reverse=descending)
         return versions
 
-    def has_version_code(self, version_code: int):
+    def has_version_code(self, version_code: int) -> bool:
         versions = self._get_version_code_list()
         return version_code in versions
 

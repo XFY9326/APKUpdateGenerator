@@ -64,7 +64,7 @@ class UpdateViewMenus:
 
 
 class UpdateViewInputs:
-    _INVALID_FILE_NAME_SYMBOLS = ["/", "\\", "?", "*", ":", "<", ">", '"', "|"]
+    _INVALID_FILE_NAME_SYMBOLS: list[str] = ["/", "\\", "?", "*", ":", "<", ">", '"', "|"]
 
     @staticmethod
     def _new_file_name(title: str, validator: Callable[[str], bool]) -> Optional[str]:
