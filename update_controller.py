@@ -16,7 +16,7 @@ class UpdateController:
     @staticmethod
     def _file_exists_validator(path: str) -> Callable[[str], bool]:
         def _validator(name: str) -> bool:
-            if os.path.exists(path):
+            if os.path.exists(os.path.join(path, name)):
                 UpdateViewOutputs.file_name_exist(name, path)
                 return False
             return True
