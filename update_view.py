@@ -1,16 +1,23 @@
-from typing import Optional, Callable
+from typing import Union, Optional, Callable
+
+
+def print_divider(c: str = "-", n: int = 50):
+    print(c * n + "\n")
 
 
 class UpdateViewMenus:
     @staticmethod
     def _choose_ui(title: str, sections: list[str], otherwise: Optional[str] = "<Exit>") -> Optional[int]:
+        print_divider()
         print(title)
         num_len = len(str(len(sections)))
         for i, section in enumerate(sections):
             print(f"{i + 1:{num_len}d} -> {section}")
         if otherwise is not None:
             print(f"{0:{num_len}d} -> {otherwise}")
-        while True:
+        print()
+        result: Union[bool, int, None] = True
+        while result is True:
             try:
                 result = int(input("Input: ").strip())
                 if 0 <= result <= len(sections):
@@ -18,13 +25,15 @@ class UpdateViewMenus:
                         if otherwise is None:
                             print("Unknown otherwise input!")
                         else:
-                            return None
+                            result = None
                     else:
-                        return result - 1
+                        result = result - 1
                 else:
                     print("Unknown input!")
             except ValueError:
                 print("Invalid input!")
+        print()
+        return result
 
     @staticmethod
     def product_functions_menu(
