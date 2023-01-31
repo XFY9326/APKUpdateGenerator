@@ -126,6 +126,7 @@ class UpdateController:
         self._files.delete_version_code_version_info(version_code)
         self._reset_index()
         self._reset_latest()
+        UpdateViewOutputs.version_deleted(version_info.version_code, version_info.version_name)
 
     def launch_product_functions(self):
         UpdateViewMenus.product_functions_menu(
