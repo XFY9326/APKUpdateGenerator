@@ -4,7 +4,7 @@ from typing import Union, Optional
 from update_model import VersionInfo, VersionIndex
 
 
-def list_jsons(folder_path: str) -> list[str]:
+def _list_jsons(folder_path: str) -> list[str]:
     return sorted(
         [i for i in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, i)) and i.endswith(".json") and not i.startswith(".")]
     )
@@ -84,6 +84,10 @@ class UpdateFileManager:
     def delete_version_info(path: str):
         os.remove(path)
 
+    @staticmethod
+    def get_new_version_templates(folder_path: str) -> list[str]:
+        return _list_jsons(folder_path) if os.path.exists(folder_path) else []
+
     def read_version_code_version_info(self, version_code: int) -> VersionInfo:
         return self.read_version_info(self.version_file(version_code))
 
@@ -155,4 +159,8 @@ class UpdateFileManager:
 
     @staticmethod
     def get_products(source_root: str) -> list[str]:
-        return sorted([i for i in os.listdir(source_root) if os.path.isdir(os.path.join(source_root, i)) and not i.startswith(".")])
+        return (
+            sorted([i for i in os.listdir(source_root) if os.path.isdir(os.path.join(source_root, i)) and not i.startswith(".")])
+            if os.path.exists(source_root)
+            else []
+        )

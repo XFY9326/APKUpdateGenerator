@@ -1,7 +1,7 @@
 import os
 from typing import Callable, Optional
 
-from update_io import UpdateFileManager, list_jsons
+from update_io import UpdateFileManager
 from update_model import VersionInfo
 from update_view import UpdateViewMenus, UpdateViewInputs, UpdateViewOutputs
 
@@ -35,7 +35,7 @@ class UpdateController:
 
     @staticmethod
     def get_product(source_root: str) -> Optional[str]:
-        products = UpdateFileManager.get_products(source_root) if os.path.exists(source_root) else []
+        products = UpdateFileManager.get_products(source_root)
         product = UpdateViewMenus.choose_product_menu(products) if len(products) > 0 else None
         if product is None:
             product = UpdateViewInputs.create_new_product(UpdateController._file_exists_validator(source_root))
@@ -48,7 +48,7 @@ class UpdateController:
         return product
 
     def _get_new_version_template(self) -> Optional[VersionInfo]:
-        new_versions = list_jsons(self._new_version_folder) if os.path.exists(self._new_version_folder) else []
+        new_versions = UpdateFileManager.get_new_version_templates(self._new_version_folder)
         file_name = UpdateViewMenus.choose_version_template_menu(new_versions) if len(new_versions) > 0 else None
         if file_name is None:
             new_file_name = UpdateViewInputs.create_new_version_template(self._file_exists_validator(self._new_version_folder))
