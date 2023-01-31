@@ -2,11 +2,23 @@
 
 Generate static android application update web
 
+# Requirements
+
+Python 3.7 or above
+
 # Features
 
 - Text-based system
 - Static website
 - Simple structure
+
+# Usage
+
+Launch updater
+
+```bash
+python3 updater.py
+```
 
 ----------
 
