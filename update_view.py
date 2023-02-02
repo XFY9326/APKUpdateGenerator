@@ -16,8 +16,7 @@ class UpdateViewMenus:
         if otherwise is not None:
             print(f"{0:{num_len}d} -> {otherwise}")
         print()
-        result: Union[bool, int, None] = True
-        while result is True:
+        while True:
             try:
                 result = int(input("Input: ").strip())
                 if 0 <= result <= len(sections):
@@ -25,15 +24,15 @@ class UpdateViewMenus:
                         if otherwise is None:
                             print("Unknown otherwise input!")
                         else:
-                            result = None
+                            print()
+                            return None
                     else:
-                        result = result - 1
+                        print()
+                        return result - 1
                 else:
                     print("Unknown input!")
             except ValueError:
                 print("Invalid input!")
-        print()
-        return result
 
     @staticmethod
     def product_functions_menu(
