@@ -17,7 +17,7 @@ class UpdateController:
         return self._product
 
     @property
-    def files(self) -> str:
+    def files(self) -> UpdateFileManager:
         return self._files
 
     @staticmethod
@@ -137,17 +137,20 @@ class UpdateInteractiveController:
         return product
 
     def _get_new_version_template(self) -> Optional[VersionInfo]:
-        new_versions = UpdateFileManager.get_new_version_templates(self._new_version_folder)
+        new_versions = self._controller.files.get_new_version_templates(self._new_version_folder)
+        # With .json
         file_name = UpdateViewMenus.choose_version_template_menu(new_versions) if len(new_versions) > 0 else None
         if file_name is None:
+            # Without .json
             new_file_name = UpdateViewInputs.create_new_version_template(self._controller.get_file_exists_validator(self._new_version_folder))
             if new_file_name is not None:
                 self._controller.create_new_version_template(self._new_version_folder, new_file_name, False)
             return None
         else:
-            return self._controller._files.read_version_info(os.path.join(self._new_version_folder, file_name))
+            file_path = os.path.join(self._new_version_folder, file_name)
+            return self._controller.files.read_version_info(file_path)
 
-    def _list_versions(self):
+    def _on_list_versions(self):
         UpdateViewOutputs.list_versions(self._controller.get_versions())
 
     def _check_add_old_version(self, version_info: VersionInfo) -> bool:
@@ -155,7 +158,7 @@ class UpdateInteractiveController:
             return UpdateViewInputs.check_add_old_version(version_info.version_code, version_info.version_name)
         return True
 
-    def _add_version(self, replaceable: bool):
+    def _on_add_version(self, replaceable: bool):
         version_info = self._get_new_version_template()
         if version_info is None:
             return
@@ -168,7 +171,7 @@ class UpdateInteractiveController:
             ),
         )
 
-    def _delete_version(self):
+    def _on_delete_version(self):
         version_code = UpdateViewInputs.get_delete_version_code(self._controller.get_choose_version_code_validator())
         if version_code is None:
             return
@@ -180,16 +183,16 @@ class UpdateInteractiveController:
             ),
         )
 
-    def _reset_index_and_latest(self):
+    def _on_reset_index_and_latest(self):
         self._controller.reset_index_and_latest()
         UpdateViewOutputs.index_and_latest_refreshed()
 
     def launch_interactive_menu(self):
         UpdateViewMenus.product_functions_menu(
             product=self._controller.product,
-            on_list_versions=self._list_versions,
-            on_add_version=lambda: self._add_version(False),
-            on_replace_version=lambda: self._add_version(True),
-            on_delete_version=self._delete_version,
-            on_refresh_index_and_latest=self._reset_index_and_latest,
+            on_list_versions=self._on_list_versions,
+            on_add_version=lambda: self._on_add_version(False),
+            on_replace_version=lambda: self._on_add_version(True),
+            on_delete_version=self._on_delete_version,
+            on_refresh_index_and_latest=self._on_reset_index_and_latest,
         )
