@@ -79,6 +79,11 @@ class UpdateController:
         else:
             self._files.delete_latest_files()
 
+    def _reset_index_and_latest(self, show_msg: bool = False):
+        self._reset_index()
+        self._reset_latest()
+        UpdateViewOutputs.index_and_latest_refreshed()
+
     def _list_versions(self):
         versions = self._files.list_version_codes(descending=False)
         UpdateViewOutputs.list_versions(versions)
@@ -106,8 +111,7 @@ class UpdateController:
                 ):
                     return
             self._files.save_version_code_version_info(version_info)
-            self._reset_index()
-            self._reset_latest()
+            self._reset_index_and_latest()
             if replaceable:
                 UpdateViewOutputs.new_version_replaced(version_info.version_code, version_info.version_name)
             else:
@@ -124,8 +128,7 @@ class UpdateController:
         ):
             return
         self._files.delete_version_code_version_info(version_code)
-        self._reset_index()
-        self._reset_latest()
+        self._reset_index_and_latest()
         UpdateViewOutputs.version_deleted(version_info.version_code, version_info.version_name)
 
     def launch_product_functions(self):
@@ -135,4 +138,5 @@ class UpdateController:
             on_add_version=lambda: self._add_version(False),
             on_replace_version=lambda: self._add_version(True),
             on_delete_version=self._delete_version,
+            on_refresh_index_and_latest=lambda: self._reset_index_and_latest(True),
         )

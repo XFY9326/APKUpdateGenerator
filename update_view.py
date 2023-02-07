@@ -1,4 +1,4 @@
-from typing import Union, Optional, Callable
+from typing import Optional, Callable
 
 
 def print_divider(c: str = "-", n: int = 50):
@@ -41,9 +41,10 @@ class UpdateViewMenus:
         on_add_version: Callable[[], None],
         on_replace_version: Callable[[], None],
         on_delete_version: Callable[[], None],
+        on_refresh_index_and_latest: Callable[[], None],
     ):
-        sections = ["List versions", "Add version", "Replace version", "Delete version"]
-        actions = [on_list_versions, on_add_version, on_replace_version, on_delete_version]
+        sections = ["List versions", "Add version", "Replace version", "Delete version", "Refresh index and latest"]
+        actions = [on_list_versions, on_add_version, on_replace_version, on_delete_version, on_refresh_index_and_latest]
         while True:
             choice = UpdateViewMenus._choose_ui(f"Current Product: {product}", sections)
             if choice is not None:
@@ -182,3 +183,7 @@ class UpdateViewOutputs:
     @staticmethod
     def version_deleted(version_code: int, version_name: str):
         print(f"Version {version_name} ({version_code}) deleted!")
+
+    @staticmethod
+    def index_and_latest_refreshed():
+        print(f"Version index and latest info refreshed!")
