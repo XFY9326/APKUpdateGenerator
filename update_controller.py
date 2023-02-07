@@ -209,8 +209,11 @@ class UpdateCommandController:
             controller.refresh_latest()
             UpdateViewOutputs.latest_refreshed()
 
+    def _cmd_about(self, _: argparse.Namespace):
+        UpdateViewOutputs.show_about()
+
     def execute_commands(self, args: argparse.Namespace):
-        commands = ["create", "show", "add", "replace", "delete", "refresh"]
+        commands = ["create", "show", "add", "replace", "delete", "refresh", "about"]
         func = [
             self._cmd_create,
             self._cmd_show,
@@ -218,6 +221,7 @@ class UpdateCommandController:
             lambda a: self._cmd_add(a, True),
             self._cmd_delete,
             self._cmd_refresh,
+            self._cmd_about,
         ]
         func[commands.index(args.command)](args)
 
@@ -286,6 +290,11 @@ class UpdateInteractiveController:
     def _on_refresh_all(self):
         self._controller.refresh_all()
         UpdateViewOutputs.all_refreshed()
+
+    @staticmethod
+    def show_banner():
+        UpdateViewOutputs.show_about()
+        UpdateViewOutputs.hint_exit()
 
     def launch_interactive_menu(self):
         UpdateViewMenus.product_functions_menu(

@@ -143,6 +143,20 @@ class UpdateViewInputs:
 
 class UpdateViewOutputs:
     @staticmethod
+    def show_about():
+        from updater_meta import __author__, __version__, __website__
+
+        print("Update generator\n")
+        print(f"Made by {__author__}")
+        print(f"Version: {__version__}")
+        print(f"Website: {__website__}")
+        print()
+
+    @staticmethod
+    def hint_exit():
+        print("Press <Ctrl> + c to exit")
+
+    @staticmethod
     def show_versions(versions: list[int], show_cols: int = 10):
         if len(versions) == 0:
             print("No versions available!")

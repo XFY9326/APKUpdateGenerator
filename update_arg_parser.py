@@ -71,4 +71,6 @@ def parse_args(args: list[str]) -> argparse.ArgumentParser:
     _setup_delete_version_parser(sub_parsers.add_parser("delete", help="Delete version"))
     _setup_refresh_parser(sub_parsers.add_parser("refresh", help="Refresh version index and latest info"))
 
+    sub_parsers.add_parser("about", help="About", add_help=False)
+
     return parser.parse_args(args)

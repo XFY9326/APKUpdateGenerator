@@ -10,17 +10,8 @@ NEW_VERSIONS_ROOT = os.path.join(WORK_DIR, "NewVersions")
 RECENT_INDEX_LENGTH = 15
 
 
-__author__ = "XFY9326"
-__version__ = "0.2"
-__website__ = "https://github.com/XFY9326/APKUpdateGenerator"
-
-
 def interactive_start_menu():
-    print("Update generator\n")
-    print(f"Made by {__author__}")
-    print(f"Version: {__version__}")
-    print(f"Website: {__website__}")
-    print()
+    UpdateInteractiveController.show_banner()
     product = UpdateInteractiveController.get_product(SOURCE_ROOT)
     if product is not None:
         controller = UpdateInteractiveController(product, SOURCE_ROOT, RECENT_INDEX_LENGTH, NEW_VERSIONS_ROOT)
