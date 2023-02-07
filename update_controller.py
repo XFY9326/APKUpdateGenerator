@@ -92,6 +92,10 @@ class UpdateController:
     def get_versions(self) -> list[int]:
         return self._files.list_version_codes(descending=False)
 
+    @staticmethod
+    def get_products(source_root: str) -> list[str]:
+        return UpdateFileManager.get_products(source_root)
+
     def is_adding_old_version(self, new_version_info: VersionInfo) -> bool:
         latest_version_info = self.get_latest_version()
         return latest_version_info is not None and new_version_info.version_code < latest_version_info.version_code
@@ -165,12 +169,18 @@ class UpdateCommandController:
             if UpdateController.create_product(self._source_root, name, False) is None:
                 sys.exit(1)
 
-    def _cmd_list(self, args: argparse.Namespace):
-        product: str = args.product
-        controller = self._controller(product)
-        UpdateViewOutputs.list_versions(controller.get_versions())
+    def _cmd_show(self, args: argparse.Namespace):
+        show_type: str = args.show
+        if show_type == "versions":
+            product: str = args.product
+            controller = self._controller(product)
+            UpdateViewOutputs.show_versions(controller.get_versions())
+        elif show_type == "products":
+            products = UpdateController.get_products(self._source_root)
+            UpdateViewOutputs.show_products(products)
 
     def _cmd_add(self, args: argparse.Namespace, replaceable: bool):
+
         product: str = args.product
         version_info_path: str = args.version_info
         controller = self._controller(product)
@@ -200,10 +210,10 @@ class UpdateCommandController:
             UpdateViewOutputs.latest_refreshed()
 
     def execute_commands(self, args: argparse.Namespace):
-        commands = ["create", "list", "add", "replace", "delete", "refresh"]
+        commands = ["create", "show", "add", "replace", "delete", "refresh"]
         func = [
             self._cmd_create,
-            self._cmd_list,
+            self._cmd_show,
             lambda a: self._cmd_add(a, False),
             lambda a: self._cmd_add(a, True),
             self._cmd_delete,
@@ -241,7 +251,7 @@ class UpdateInteractiveController:
             return self._controller.files.read_version_info(file_path)
 
     def _on_list_versions(self):
-        UpdateViewOutputs.list_versions(self._controller.get_versions())
+        UpdateViewOutputs.show_versions(self._controller.get_versions())
 
     def _check_add_old_version(self, version_info: VersionInfo) -> bool:
         if self._controller.is_adding_old_version(version_info):

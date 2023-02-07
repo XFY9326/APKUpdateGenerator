@@ -37,6 +37,13 @@ def _setup_delete_version_parser(parser: argparse.ArgumentParser):
     parser.add_argument("-c", "--code", help="Version code", required=True, type=int, dest="version_code")
 
 
+def _setup_show_parser(parser: argparse.ArgumentParser):
+    sub_parsers = parser.add_subparsers(title="Show", dest="show", required=True, metavar="<type>")
+
+    sub_parsers.add_parser("products", help="Show products")
+    _parse_product(sub_parsers.add_parser("versions", help="Show versions"))
+
+
 def _setup_refresh_parser(parser: argparse.ArgumentParser):
     sub_parsers = parser.add_subparsers(title="Refresh types", dest="refresh", required=True, metavar="<type>")
 
@@ -58,7 +65,7 @@ def parse_args(args: list[str]) -> argparse.ArgumentParser:
     sub_parsers = parser.add_subparsers(title="Commands", dest="command", required=True, metavar="<command>")
 
     _setup_create_parser(sub_parsers.add_parser("create", help="Create file or folder"))
-    _parse_product(sub_parsers.add_parser("list", help="List versions"))
+    _setup_show_parser(sub_parsers.add_parser("show", help="Show versions"))
     _parse_product_version(sub_parsers.add_parser("add", help="Add version"))
     _parse_product_version(sub_parsers.add_parser("replace", help="Replace version"))
     _setup_delete_version_parser(sub_parsers.add_parser("delete", help="Delete version"))

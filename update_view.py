@@ -143,7 +143,7 @@ class UpdateViewInputs:
 
 class UpdateViewOutputs:
     @staticmethod
-    def list_versions(versions: list[int], show_cols: int = 10):
+    def show_versions(versions: list[int], show_cols: int = 10):
         if len(versions) == 0:
             print("No versions available!")
         else:
@@ -151,7 +151,17 @@ class UpdateViewOutputs:
             print("Versions:")
             for i in range(0, len(versions), show_cols):
                 print("\t".join([f"{versions[i + o]:{num_length}d}" for o in range(show_cols) if i + o < len(versions)]))
-            print("Total: ", len(versions))
+            print("Total:", len(versions))
+
+    @staticmethod
+    def show_products(products: list[str]):
+        if len(products) == 0:
+            print("No products available!")
+        else:
+            print("Products:")
+            for product in products:
+                print(f"  {product}")
+            print("Total:", len(products))
 
     @staticmethod
     def new_version_template_created(path: str):
