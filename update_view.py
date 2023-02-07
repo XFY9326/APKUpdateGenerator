@@ -128,16 +128,16 @@ class UpdateViewInputs:
 
     @staticmethod
     def check_add_old_version(version_code: int, version_name: str) -> bool:
-        return UpdateViewInputs._yes_or_no(f"Are you sure to add a old version {version_name} ({version_code})", False)
+        return UpdateViewInputs._yes_or_no(f"Are you sure to add a old version '{version_name}' ({version_code})", False)
 
     @staticmethod
     def validate_delete_version(version_code: int, version_name: str) -> bool:
-        return UpdateViewInputs._yes_or_no(f"Are you sure to delete {version_name} ({version_code})", False)
+        return UpdateViewInputs._yes_or_no(f"Are you sure to delete '{version_name}' ({version_code})", False)
 
     @staticmethod
     def validate_replace_version(version_code_new: int, version_name_new: str, version_code: int, version_name: str) -> bool:
         return UpdateViewInputs._yes_or_no(
-            f"Are you sure to replace {version_name} ({version_code}) with {version_name_new} ({version_code_new})", False
+            f"Are you sure to replace '{version_name}' ({version_code}) with '{version_name_new}' ({version_code_new})", False
         )
 
 
@@ -174,15 +174,15 @@ class UpdateViewOutputs:
 
     @staticmethod
     def new_version_added(version_code: int, version_name: str):
-        print(f"New version {version_name} ({version_code}) added!")
+        print(f"New version '{version_name}' ({version_code}) added!")
 
     @staticmethod
     def new_version_replaced(version_code: int, version_name: str):
-        print(f"New version {version_name} ({version_code}) replaced!")
+        print(f"New version '{version_name}' ({version_code}) replaced!")
 
     @staticmethod
     def version_deleted(version_code: int, version_name: str):
-        print(f"Version {version_name} ({version_code}) deleted!")
+        print(f"Version '{version_name}' ({version_code}) deleted!")
 
     @staticmethod
     def index_and_latest_refreshed():
