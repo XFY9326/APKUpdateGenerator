@@ -14,10 +14,16 @@ Python 3.7 or above
 
 # Usage
 
-Launch updater
+Launch interactive updater
 
 ```bash
 python3 updater.py
+```
+
+Use command controller
+
+```bash
+python3 updater.py -h
 ```
 
 ----------

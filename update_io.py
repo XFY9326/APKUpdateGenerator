@@ -88,11 +88,20 @@ class UpdateFileManager:
     def get_new_version_templates(folder_path: str) -> list[str]:
         return _list_jsons(folder_path) if os.path.exists(folder_path) else []
 
-    def read_version_code_version_info(self, version_code: int) -> VersionInfo:
-        return self.read_version_info(self.version_file(version_code))
+    def read_version_code_version_info(self, version_code: int) -> Optional[VersionInfo]:
+        version_file = self.version_file(version_code)
+        if os.path.exists(version_file):
+            return self.read_version_info(version_file)
+        else:
+            return None
 
-    def delete_version_code_version_info(self, version_code: int):
-        self.delete_version_info(self.version_file(version_code))
+    def delete_version_code_version_info(self, version_code: int) -> bool:
+        version_file = self.version_file(version_code)
+        if os.path.exists(version_file):
+            self.delete_version_info(version_file)
+            return True
+        else:
+            return False
 
     def read_recent_version_index_list(self, num: Optional[int] = None, descending: bool = True) -> list[VersionIndex]:
         indexes = [VersionIndex.from_dict(i) for i in _load_json(self.recent_index_file)]
@@ -128,11 +137,14 @@ class UpdateFileManager:
     def save_latest_version_info(self, info: VersionInfo):
         self.save_version_info(self.latest_file, info)
 
-    def save_template_version_info(self, name: str, path: str) -> str:
+    @staticmethod
+    def save_template_version_info(name: str, path: str) -> str:
+        if not os.path.exists(path):
+            os.makedirs(path)
         if not name.endswith(".json"):
             name += ".json"
         file_path = os.path.join(path, name)
-        self.save_version_info(file_path, VersionInfo.empty_instance())
+        UpdateFileManager.save_version_info(file_path, VersionInfo.empty_instance())
         return file_path
 
     def save_latest_download_info(self, info: VersionInfo):
@@ -150,6 +162,11 @@ class UpdateFileManager:
     def delete_latest_files(self):
         os.remove(self.latest_file)
         os.remove(self.latest_download_file)
+
+    @staticmethod
+    def has_product(source_root: str, product: str) -> bool:
+        product_dir = os.path.join(source_root, product)
+        return os.path.exists(product_dir)
 
     @staticmethod
     def new_product(source_root: str, product: str):

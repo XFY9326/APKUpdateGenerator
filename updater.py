@@ -1,7 +1,8 @@
 import os
 import sys
-from update_arg_parser import get_arg_parser
-from update_controller import UpdateInteractiveController
+import argparse
+from update_arg_parser import parse_args
+from update_controller import UpdateCommandController, UpdateInteractiveController
 
 WORK_DIR = os.path.realpath(os.path.dirname(__file__))
 SOURCE_ROOT = os.path.join(WORK_DIR, "Updates")
@@ -26,11 +27,17 @@ def interactive_start_menu():
         controller.launch_interactive_menu()
 
 
+def command_control_handler(args: argparse.Namespace):
+    controller = UpdateCommandController(SOURCE_ROOT, RECENT_INDEX_LENGTH)
+    controller.execute_commands(args)
+
+
 def main():
-    # parser = get_arg_parser()
-    # args = parser.parse_args()
-    # print(args)
-    interactive_start_menu()
+    if len(sys.argv) > 1:
+        args = parse_args(sys.argv[1:])
+        command_control_handler(args)
+    else:
+        interactive_start_menu()
 
 
 if __name__ == "__main__":

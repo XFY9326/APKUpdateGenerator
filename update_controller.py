@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 from typing import Callable, Optional
 
@@ -50,18 +51,24 @@ class UpdateController:
         else:
             return None
 
-    def create_new_version_template(self, new_version_folder: str, new_file_name: str, validate: bool = True) -> Optional[str]:
+    @staticmethod
+    def create_new_version_template(new_version_folder: str, new_file_name: str, validate: bool = True) -> Optional[str]:
         if not validate or UpdateController.get_file_exists_validator(new_version_folder)(new_file_name):
-            new_file_path = self._files.save_template_version_info(new_file_name, new_version_folder)
+            new_file_path = UpdateFileManager.save_template_version_info(new_file_name, new_version_folder)
             UpdateViewOutputs.new_version_template_created(new_file_path)
             return new_file_path
         else:
             return None
 
-    def reset_index(self):
+    @staticmethod
+    def is_product_exists(source_root: str, product: str) -> bool:
+        return UpdateFileManager.has_product(source_root, product)
+
+    def refresh_index(self):
         version_codes = self._files.list_version_codes()
         self._files.save_version_index_file(version_codes)
-        version_indexes = [self._files.read_version_code_version_info(i).to_index() for i in version_codes[: self._recent_index_length]]
+        versions = [self._files.read_version_code_version_info(i) for i in version_codes[: self._recent_index_length]]
+        version_indexes = [i.to_index() for i in versions if i is not None]
         self._files.save_recent_index_list(version_indexes)
 
     def get_latest_version(self) -> Optional[VersionInfo]:
@@ -70,7 +77,7 @@ class UpdateController:
             return self._files.read_version_code_version_info(version_codes[0])
         return None
 
-    def reset_latest(self):
+    def refresh_latest(self):
         latest_version_info = self.get_latest_version()
         if latest_version_info is not None:
             self._files.save_latest_version_info(latest_version_info)
@@ -78,9 +85,9 @@ class UpdateController:
         else:
             self._files.delete_latest_files()
 
-    def reset_index_and_latest(self):
-        self.reset_index()
-        self.reset_latest()
+    def refresh_all(self):
+        self.refresh_index()
+        self.refresh_latest()
 
     def get_versions(self) -> list[int]:
         return self._files.list_version_codes(descending=False)
@@ -95,41 +102,115 @@ class UpdateController:
         replaceable: bool,
         on_adding_old_version: Optional[Callable[[VersionInfo], bool]] = None,
         on_replace_version: Optional[Callable[[VersionInfo], bool]] = None,
-    ):
+    ) -> bool:
         if not replaceable and self.is_adding_old_version(version_info):
             if on_adding_old_version is not None and not on_adding_old_version(version_info):
-                return
+                return False
         version_exists = self._files.has_version_code(version_info.version_code)
         if not replaceable and version_exists:
             UpdateViewOutputs.same_version_code_exists(version_info.version_code)
+            return False
         else:
             if replaceable and version_exists:
                 old_version_info = self._files.read_version_code_version_info(version_info.version_code)
-                if not on_replace_version(old_version_info):
-                    return
+                if old_version_info is None:
+                    UpdateViewOutputs.unknown_version_code(version_info.version_code)
+                    return False
+                if on_replace_version is not None and not on_replace_version(old_version_info):
+                    return False
             self._files.save_version_code_version_info(version_info)
-            self.reset_index_and_latest()
+            self.refresh_all()
             if replaceable:
                 UpdateViewOutputs.new_version_replaced(version_info.version_code, version_info.version_name)
             else:
                 UpdateViewOutputs.new_version_added(version_info.version_code, version_info.version_name)
+            return True
 
-    def delete_version(self, version_code: int, on_deleteing_version: Optional[Callable[[VersionInfo], bool]] = None):
+    def delete_version(self, version_code: int, on_deleteing_version: Optional[Callable[[VersionInfo], bool]] = None) -> bool:
         version_info = self._files.read_version_code_version_info(version_code)
+        if version_info is None:
+            UpdateViewOutputs.unknown_version_code(version_code)
+            return False
         if on_deleteing_version is not None and not on_deleteing_version(version_info):
-            return
-        self._files.delete_version_code_version_info(version_code)
-        self.reset_index_and_latest()
-        UpdateViewOutputs.version_deleted(version_info.version_code, version_info.version_name)
+            return False
+        if self._files.delete_version_code_version_info(version_code):
+            self.refresh_all()
+            UpdateViewOutputs.version_deleted(version_info.version_code, version_info.version_name)
+            return True
+        else:
+            UpdateViewOutputs.unknown_version_code(version_code)
+            return False
 
 
 class UpdateCommandController:
-    def __init__(self, product: str, source_root: str, recent_index_length: int, new_version_folder: str):
-        self._new_version_folder: str = new_version_folder
-        self._controller = UpdateController(product, source_root, recent_index_length)
+    def __init__(self, source_root: str, recent_index_length: int):
+        self._source_root: str = source_root
+        self._recent_index_length: int = recent_index_length
 
-    def parse_commands(args: argparse.Namespace):
-        pass
+    def _controller(self, product: str) -> UpdateController:
+        try:
+            return UpdateController(product, self._source_root, self._recent_index_length)
+        except FileNotFoundError:
+            sys.stderr.write(f"Product '{product}' not exists!\n")
+            sys.exit(1)
+
+    def _cmd_create(self, args: argparse.Namespace):
+        create_type: str = args.create
+        name: str = args.name
+        dest: str = args.dest
+        if create_type == "version":
+            if UpdateController.create_new_version_template(dest, name, False) is None:
+                sys.exit(1)
+        elif create_type == "product":
+            if UpdateController.create_product(self._source_root, name, False) is None:
+                sys.exit(1)
+
+    def _cmd_list(self, args: argparse.Namespace):
+        product: str = args.product
+        controller = self._controller(product)
+        UpdateViewOutputs.list_versions(controller.get_versions())
+
+    def _cmd_add(self, args: argparse.Namespace):
+        product: str = args.product
+        version_info_path: str = args.version_info
+        controller = self._controller(product)
+        version_info = controller.files.read_version_info(version_info_path)
+        if not controller.add_version(version_info, False):
+            sys.exit(1)
+
+    def _cmd_replace(self, args: argparse.Namespace):
+        product: str = args.product
+        version_info_path: str = args.version_info
+        controller = self._controller(product)
+        version_info = controller.files.read_version_info(version_info_path)
+        if not controller.add_version(version_info, True):
+            sys.exit(1)
+
+    def _cmd_delete(self, args: argparse.Namespace):
+        product: str = args.product
+        version_code: int = args.version_code
+        controller = self._controller(product)
+        if not controller.delete_version(version_code):
+            sys.exit(1)
+
+    def _cmd_refresh(self, args: argparse.Namespace):
+        refresh_type: str = args.refresh
+        product: str = args.product
+        controller = self._controller(product)
+        if refresh_type == "all":
+            controller.refresh_all()
+            UpdateViewOutputs.all_refreshed()
+        elif refresh_type == "index":
+            controller.refresh_index()
+            UpdateViewOutputs.index_refreshed()
+        elif refresh_type == "latest":
+            controller.refresh_latest()
+            UpdateViewOutputs.latest_refreshed()
+
+    def execute_commands(self, args: argparse.Namespace):
+        commands = ["create", "list", "add", "replace", "delete", "refresh"]
+        func = [self._cmd_create, self._cmd_list, self._cmd_add, self._cmd_replace, self._cmd_delete, self._cmd_refresh]
+        func[commands.index(args.command)](args)
 
 
 class UpdateInteractiveController:
@@ -193,9 +274,9 @@ class UpdateInteractiveController:
             ),
         )
 
-    def _on_reset_index_and_latest(self):
-        self._controller.reset_index_and_latest()
-        UpdateViewOutputs.index_and_latest_refreshed()
+    def _on_refresh_all(self):
+        self._controller.refresh_all()
+        UpdateViewOutputs.all_refreshed()
 
     def launch_interactive_menu(self):
         UpdateViewMenus.product_functions_menu(
@@ -204,5 +285,5 @@ class UpdateInteractiveController:
             on_add_version=lambda: self._on_add_version(False),
             on_replace_version=lambda: self._on_add_version(True),
             on_delete_version=self._on_delete_version,
-            on_refresh_index_and_latest=self._on_reset_index_and_latest,
+            on_refresh_all=self._on_refresh_all,
         )

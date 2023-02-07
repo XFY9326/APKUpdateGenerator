@@ -41,10 +41,10 @@ class UpdateViewMenus:
         on_add_version: Callable[[], None],
         on_replace_version: Callable[[], None],
         on_delete_version: Callable[[], None],
-        on_refresh_index_and_latest: Callable[[], None],
+        on_refresh_all: Callable[[], None],
     ):
-        sections = ["List versions", "Add version", "Replace version", "Delete version", "Refresh index and latest"]
-        actions = [on_list_versions, on_add_version, on_replace_version, on_delete_version, on_refresh_index_and_latest]
+        sections = ["List versions", "Add version", "Replace version", "Delete version", "Refresh all"]
+        actions = [on_list_versions, on_add_version, on_replace_version, on_delete_version, on_refresh_all]
         while True:
             choice = UpdateViewMenus._choose_ui(f"Current Product: {product}", sections)
             if choice is not None:
@@ -151,6 +151,7 @@ class UpdateViewOutputs:
             print("Versions:")
             for i in range(0, len(versions), show_cols):
                 print("\t".join([f"{versions[i + o]:{num_length}d}" for o in range(show_cols) if i + o < len(versions)]))
+            print("Total: ", len(versions))
 
     @staticmethod
     def new_version_template_created(path: str):
@@ -185,5 +186,14 @@ class UpdateViewOutputs:
         print(f"Version '{version_name}' ({version_code}) deleted!")
 
     @staticmethod
-    def index_and_latest_refreshed():
-        print(f"Version index and latest info refreshed!")
+    def index_refreshed():
+        print("Version index refreshed!")
+
+    @staticmethod
+    def latest_refreshed():
+        print("Latest info refreshed!")
+
+    @staticmethod
+    def all_refreshed():
+        UpdateViewOutputs.index_refreshed()
+        UpdateViewOutputs.latest_refreshed()
