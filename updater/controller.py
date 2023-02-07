@@ -3,9 +3,10 @@ import sys
 import argparse
 from typing import Callable, Optional
 
-from update_io import UpdateFileManager
-from update_model import VersionInfo
-from update_view import UpdateViewMenus, UpdateViewInputs, UpdateViewOutputs
+from .io import UpdateFileManager
+from .model import VersionInfo
+from .view import UpdateViewMenus, UpdateViewInputs, UpdateViewOutputs
+from .arg_parser import parse_args
 
 
 class UpdateController:
@@ -212,7 +213,8 @@ class UpdateCommandController:
     def _cmd_about(self, _: argparse.Namespace):
         UpdateViewOutputs.show_about()
 
-    def execute_commands(self, args: argparse.Namespace):
+    def execute_commands(self, argv: list[str]):
+        args = parse_args(argv)
         commands = ["create", "show", "add", "replace", "delete", "refresh", "about"]
         func = [
             self._cmd_create,

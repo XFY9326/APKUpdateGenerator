@@ -17,13 +17,13 @@ Python 3.7 or above
 Launch interactive updater
 
 ```bash
-python3 updater.py
+python3 main.py
 ```
 
 Use command controller
 
 ```bash
-python3 updater.py -h
+python3 main.py -h
 ```
 
 ----------

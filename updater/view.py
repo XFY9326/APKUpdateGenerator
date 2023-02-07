@@ -1,5 +1,7 @@
 from typing import Optional, Callable
 
+from .meta import __author__, __version__, __website__
+
 
 def print_divider(c: str = "-", n: int = 50):
     print(c * n + "\n")
@@ -144,8 +146,6 @@ class UpdateViewInputs:
 class UpdateViewOutputs:
     @staticmethod
     def show_about():
-        from updater_meta import __author__, __version__, __website__
-
         print("Update generator\n")
         print(f"Made by {__author__}")
         print(f"Version: {__version__}")

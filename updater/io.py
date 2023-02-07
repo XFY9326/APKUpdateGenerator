@@ -1,7 +1,8 @@
 import os
 import json
 from typing import Union, Optional
-from update_model import VersionInfo, VersionIndex
+
+from .model import VersionInfo, VersionIndex
 
 
 def _list_jsons(folder_path: str) -> list[str]:
