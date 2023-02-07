@@ -1,4 +1,5 @@
 import os
+import argparse
 from typing import Callable, Optional
 
 from update_io import UpdateFileManager
@@ -120,6 +121,15 @@ class UpdateController:
         self._files.delete_version_code_version_info(version_code)
         self.reset_index_and_latest()
         UpdateViewOutputs.version_deleted(version_info.version_code, version_info.version_name)
+
+
+class UpdateCommandController:
+    def __init__(self, product: str, source_root: str, recent_index_length: int, new_version_folder: str):
+        self._new_version_folder: str = new_version_folder
+        self._controller = UpdateController(product, source_root, recent_index_length)
+
+    def parse_commands(args: argparse.Namespace):
+        pass
 
 
 class UpdateInteractiveController:

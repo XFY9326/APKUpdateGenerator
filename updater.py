@@ -1,4 +1,6 @@
 import os
+import sys
+from update_arg_parser import get_arg_parser
 from update_controller import UpdateInteractiveController
 
 WORK_DIR = os.path.realpath(os.path.dirname(__file__))
@@ -25,6 +27,9 @@ def interactive_start_menu():
 
 
 def main():
+    # parser = get_arg_parser()
+    # args = parser.parse_args()
+    # print(args)
     interactive_start_menu()
 
 
