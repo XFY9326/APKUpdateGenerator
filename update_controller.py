@@ -170,20 +170,12 @@ class UpdateCommandController:
         controller = self._controller(product)
         UpdateViewOutputs.list_versions(controller.get_versions())
 
-    def _cmd_add(self, args: argparse.Namespace):
+    def _cmd_add(self, args: argparse.Namespace, replaceable: bool):
         product: str = args.product
         version_info_path: str = args.version_info
         controller = self._controller(product)
         version_info = controller.files.read_version_info(version_info_path)
-        if not controller.add_version(version_info, False):
-            sys.exit(1)
-
-    def _cmd_replace(self, args: argparse.Namespace):
-        product: str = args.product
-        version_info_path: str = args.version_info
-        controller = self._controller(product)
-        version_info = controller.files.read_version_info(version_info_path)
-        if not controller.add_version(version_info, True):
+        if not controller.add_version(version_info, replaceable):
             sys.exit(1)
 
     def _cmd_delete(self, args: argparse.Namespace):
@@ -209,7 +201,14 @@ class UpdateCommandController:
 
     def execute_commands(self, args: argparse.Namespace):
         commands = ["create", "list", "add", "replace", "delete", "refresh"]
-        func = [self._cmd_create, self._cmd_list, self._cmd_add, self._cmd_replace, self._cmd_delete, self._cmd_refresh]
+        func = [
+            self._cmd_create,
+            self._cmd_list,
+            lambda a: self._cmd_add(a, False),
+            lambda a: self._cmd_add(a, True),
+            self._cmd_delete,
+            self._cmd_refresh,
+        ]
         func[commands.index(args.command)](args)
 
 
